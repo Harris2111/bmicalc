@@ -1,0 +1,683 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Calculator, 
+  Info, 
+  AlertCircle, 
+  CheckCircle2, 
+  Scale, 
+  Ruler, 
+  User, 
+  Printer,
+  Share2,
+  ChevronUp,
+  Heart,
+  ShieldCheck,
+  Mail,
+  ExternalLink,
+  ArrowRight,
+  X
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import Markdown from 'react-markdown';
+import rehypeSlug from 'rehype-slug';
+import rehypeRaw from 'rehype-raw';
+import { BLOG_CONTENT } from './BlogContent';
+import { LEGAL_CONTENT } from './LegalContent';
+
+// Utility for tailwind classes
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// Types
+type UnitSystem = 'US' | 'Metric';
+type Gender = 'male' | 'female';
+
+interface BmiResult {
+  bmi: number;
+  category: string;
+  color: string;
+  prime: number;
+  ponderalIndex: number;
+  healthyRange: { min: number; max: number };
+  healthyWeightRange: { min: number; max: number };
+  suggestion: string;
+}
+
+const BMI_CATEGORIES = [
+  { 
+    label: 'Severe Thinness', 
+    min: 0, 
+    max: 16, 
+    color: 'text-blue-600', 
+    bg: 'bg-blue-600',
+    suggestion: 'Your BMI indicates severe thinness. It is important to consult a healthcare professional to rule out underlying conditions and develop a nutrient-dense nutrition plan.'
+  },
+  { 
+    label: 'Moderate Thinness', 
+    min: 16, 
+    max: 17, 
+    color: 'text-blue-500', 
+    bg: 'bg-blue-500',
+    suggestion: 'Your BMI is in the moderate thinness range. Focus on increasing your intake of healthy fats, proteins, and complex carbohydrates. Consider strength training to build muscle mass.'
+  },
+  { 
+    label: 'Mild Thinness', 
+    min: 17, 
+    max: 18.5, 
+    color: 'text-blue-400', 
+    bg: 'bg-blue-400',
+    suggestion: 'You are slightly underweight. Small adjustments to your daily caloric intake and focusing on nutrient-rich snacks can help you reach a healthier weight range.'
+  },
+  { 
+    label: 'Normal', 
+    min: 18.5, 
+    max: 25, 
+    color: 'text-emerald-500', 
+    bg: 'bg-emerald-500',
+    suggestion: 'Great job! You are in the healthy weight range. Maintain your current lifestyle with a balanced diet and at least 150 minutes of moderate physical activity per week.'
+  },
+  { 
+    label: 'Overweight', 
+    min: 25, 
+    max: 30, 
+    color: 'text-yellow-500', 
+    bg: 'bg-yellow-500',
+    suggestion: 'Your BMI is in the overweight category. Focus on a sustainable calorie deficit through portion control and increasing your daily movement. Consistency is key to long-term health.'
+  },
+  { 
+    label: 'Obese Class I', 
+    min: 30, 
+    max: 35, 
+    color: 'text-orange-500', 
+    bg: 'bg-orange-500',
+    suggestion: 'Your BMI indicates Class I obesity. We recommend consulting a nutritionist or doctor to create a personalized plan focusing on whole foods and regular cardiovascular exercise.'
+  },
+  { 
+    label: 'Obese Class II', 
+    min: 35, 
+    max: 40, 
+    color: 'text-red-500', 
+    bg: 'bg-red-500',
+    suggestion: 'Your BMI is in the Class II obesity range. This increases the risk of health complications. A structured approach to weight management and regular medical check-ups are highly recommended.'
+  },
+  { 
+    label: 'Obese Class III', 
+    min: 40, 
+    max: Infinity, 
+    color: 'text-red-700', 
+    bg: 'bg-red-700',
+    suggestion: 'Your BMI indicates Class III obesity. It is vital to work closely with healthcare professionals to manage health risks and develop a safe, long-term weight loss and wellness strategy.'
+  },
+];
+
+export default function App() {
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>('US');
+  const [age, setAge] = useState<number>(25);
+  const [gender, setGender] = useState<Gender>('female');
+  
+  // US Units
+  const [feet, setFeet] = useState<number>(5);
+  const [inches, setInches] = useState<number>(10);
+  const [pounds, setPounds] = useState<number>(160);
+  
+  // Metric Units
+  const [cm, setCm] = useState<number>(178);
+  const [kg, setKg] = useState<number>(72.5);
+  
+  const [result, setResult] = useState<BmiResult | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [activeLegalPage, setActiveLegalPage] = useState<keyof typeof LEGAL_CONTENT | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const calculateBmi = () => {
+    let weightKg: number;
+    let heightM: number;
+
+    if (unitSystem === 'US') {
+      const totalInches = feet * 12 + inches;
+      weightKg = pounds * 0.453592;
+      heightM = totalInches * 0.0254;
+    } else {
+      weightKg = kg;
+      heightM = cm / 100;
+    }
+
+    if (heightM <= 0 || weightKg <= 0) return;
+
+    const bmi = weightKg / (heightM * heightM);
+    const prime = bmi / 25;
+    const ponderalIndex = weightKg / Math.pow(heightM, 3);
+    
+    const category = BMI_CATEGORIES.find(cat => bmi >= cat.min && bmi < cat.max) || BMI_CATEGORIES[BMI_CATEGORIES.length - 1];
+    
+    const healthyWeightMin = 18.5 * (heightM * heightM);
+    const healthyWeightMax = 25 * (heightM * heightM);
+
+    setResult({
+      bmi: parseFloat(bmi.toFixed(1)),
+      category: category.label,
+      color: category.color,
+      prime: parseFloat(prime.toFixed(2)),
+      ponderalIndex: parseFloat(ponderalIndex.toFixed(1)),
+      healthyRange: { min: 18.5, max: 25 },
+      healthyWeightRange: { 
+        min: unitSystem === 'US' ? parseFloat((healthyWeightMin / 0.453592).toFixed(1)) : parseFloat(healthyWeightMin.toFixed(1)),
+        max: unitSystem === 'US' ? parseFloat((healthyWeightMax / 0.453592).toFixed(1)) : parseFloat(healthyWeightMax.toFixed(1))
+      },
+      suggestion: category.suggestion
+    });
+  };
+
+  useEffect(() => {
+    calculateBmi();
+  }, [unitSystem, feet, inches, pounds, cm, kg, age, gender]);
+
+  return (
+    <div className="min-h-screen bg-[#F5F5F3] text-[#1A1A1A] font-sans selection:bg-emerald-100 scroll-smooth scroll-pt-20">
+      {/* Floating Back to Top */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="fixed bottom-8 right-8 z-40 p-4 bg-emerald-500 text-white rounded-full shadow-lg hover:bg-emerald-600 transition-colors"
+          >
+            <ChevronUp size={24} />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Legal Modal */}
+      <AnimatePresence>
+        {activeLegalPage && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActiveLegalPage(null)}
+              className="absolute inset-0 bg-zinc-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-3xl max-h-[80vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+            >
+              <div className="p-6 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
+                <h3 className="text-xl font-bold text-zinc-900">{LEGAL_CONTENT[activeLegalPage].title}</h3>
+                <button
+                  onClick={() => setActiveLegalPage(null)}
+                  className="p-2 hover:bg-zinc-100 rounded-full transition-colors text-zinc-400 hover:text-zinc-600"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-8 overflow-y-auto custom-scrollbar">
+                <div className="prose prose-zinc prose-sm max-w-none prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-p:text-zinc-600 prose-li:text-zinc-600">
+                  <Markdown>{LEGAL_CONTENT[activeLegalPage].content}</Markdown>
+                </div>
+              </div>
+              <div className="p-6 border-t border-zinc-100 bg-zinc-50/50 flex justify-end">
+                <button
+                  onClick={() => setActiveLegalPage(null)}
+                  className="px-6 py-2 bg-zinc-900 text-white rounded-xl font-bold text-sm hover:bg-zinc-800 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Header */}
+      <header className="border-b border-zinc-200 bg-white sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white">
+              <Calculator size={18} />
+            </div>
+            <h1 className="text-lg font-semibold tracking-tight">Accurate BMI Calculator</h1>
+          </div>
+          <nav className="hidden md:flex items-center gap-6">
+            <a href="#" className="text-sm font-medium text-zinc-600 hover:text-emerald-600 transition-colors">Calculator</a>
+            <a href="#guide" className="text-sm font-medium text-zinc-600 hover:text-emerald-600 transition-colors">Ultimate Guide</a>
+            <a href="#risks" className="text-sm font-medium text-zinc-600 hover:text-emerald-600 transition-colors">Health Risks</a>
+          </nav>
+          <div className="flex items-center gap-4">
+            <button className="p-2 hover:bg-zinc-100 rounded-full transition-colors text-zinc-500">
+              <Printer size={20} />
+            </button>
+            <button className="p-2 hover:bg-zinc-100 rounded-full transition-colors text-zinc-500">
+              <Share2 size={20} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-8 md:py-12">
+        <div className="space-y-16">
+          {/* Calculator Section */}
+          <div className="space-y-8">
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-zinc-200">
+              <div className="flex flex-col lg:flex-row items-center gap-8">
+                <div className="flex bg-zinc-100 p-1 rounded-xl shrink-0">
+                  {(['US', 'Metric'] as UnitSystem[]).map((sys) => (
+                    <button
+                      key={sys}
+                      onClick={() => setUnitSystem(sys)}
+                      className={cn(
+                        "px-6 py-2 text-sm font-bold rounded-lg transition-all",
+                        unitSystem === sys 
+                          ? "bg-white text-emerald-600 shadow-sm" 
+                          : "text-zinc-500 hover:text-zinc-800"
+                      )}
+                    >
+                      {sys}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                      <User size={12} /> Age
+                    </label>
+                    <input 
+                      type="number" 
+                      value={age}
+                      onChange={(e) => setAge(parseInt(e.target.value) || 0)}
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-mono text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Gender</label>
+                    <div className="flex bg-zinc-50 border border-zinc-200 rounded-xl p-1">
+                      {(['male', 'female'] as Gender[]).map((g) => (
+                        <button
+                          key={g}
+                          onClick={() => setGender(g)}
+                          className={cn(
+                            "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all capitalize",
+                            gender === g 
+                              ? "bg-white text-emerald-600 shadow-sm" 
+                              : "text-zinc-400 hover:text-zinc-600"
+                          )}
+                        >
+                          {g}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                      <Ruler size={12} /> Height
+                    </label>
+                    {unitSystem === 'US' ? (
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input 
+                            type="number" 
+                            value={feet}
+                            onChange={(e) => setFeet(parseInt(e.target.value) || 0)}
+                            className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-mono text-sm"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-300">FT</span>
+                        </div>
+                        <div className="relative flex-1">
+                          <input 
+                            type="number" 
+                            value={inches}
+                            onChange={(e) => setInches(parseInt(e.target.value) || 0)}
+                            className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-mono text-sm"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-300">IN</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <input 
+                          type="number" 
+                          value={cm}
+                          onChange={(e) => setCm(parseInt(e.target.value) || 0)}
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-4 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-mono text-sm"
+                        />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-300">CM</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                      <Scale size={12} /> Weight
+                    </label>
+                    <div className="relative">
+                      <input 
+                        type="number" 
+                        value={unitSystem === 'US' ? pounds : kg}
+                        onChange={(e) => unitSystem === 'US' ? setPounds(parseFloat(e.target.value) || 0) : setKg(parseFloat(e.target.value) || 0)}
+                        className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-4 pr-12 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-mono text-sm"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-300 uppercase">
+                        {unitSystem === 'US' ? 'LBS' : 'KG'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Results Card */}
+          <AnimatePresence mode="wait">
+            {result && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-zinc-200"
+              >
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                  <div className="lg:col-span-5 flex flex-col items-center">
+                    <div className="relative w-64 h-64 flex items-center justify-center shrink-0">
+                      <svg className="w-full h-full -rotate-90">
+                        <circle cx="128" cy="128" r="112" fill="none" stroke="#F4F4F5" strokeWidth="20" />
+                        <circle
+                          cx="128"
+                          cy="128"
+                          r="112"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="20"
+                          strokeDasharray={703}
+                          strokeDashoffset={703 - (Math.min(result.bmi, 40) / 40) * 703}
+                          className={cn("transition-all duration-1000 ease-out", result.color.replace('text', 'stroke'))}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+                        <span className={cn("text-6xl font-black font-mono tracking-tighter transition-colors duration-500", result.color)}>
+                          {result.bmi}
+                        </span>
+                        <span className={cn("text-sm font-bold uppercase tracking-widest mt-2 transition-colors duration-500", result.color)}>
+                          {result.category}
+                        </span>
+                        <div className="h-px w-12 bg-zinc-100 my-3" />
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">BMI Units</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-7 space-y-10">
+                    <div className="grid grid-cols-2 gap-x-12 gap-y-8">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Healthy Range</span>
+                        <p className="text-xl font-mono font-bold">{result.healthyRange.min} - {result.healthyRange.max}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Healthy Weight</span>
+                        <p className="text-xl font-mono font-bold">{result.healthyWeightRange.min} - {result.healthyWeightRange.max} <span className="text-xs font-normal text-zinc-400 uppercase">{unitSystem === 'US' ? 'lbs' : 'kg'}</span></p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">BMI Prime</span>
+                        <p className="text-xl font-mono font-bold">{result.prime}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Ponderal Index</span>
+                        <p className="text-xl font-mono font-bold">{result.ponderalIndex} <span className="text-xs font-normal text-zinc-400 uppercase">kg/m³</span></p>
+                      </div>
+                    </div>
+
+                    <div className="bg-zinc-50 rounded-3xl p-8 border border-zinc-100 relative overflow-hidden">
+                      <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", result.color.replace('text', 'bg'))} />
+                      <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                        <CheckCircle2 size={16} className={result.color} />
+                        Personalized Suggestion
+                      </h3>
+                      <p className="text-sm text-zinc-600 leading-relaxed">
+                        {result.suggestion}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* The Ultimate Guide Section */}
+          <section id="guide" className="pt-8 relative">
+            <div className="bg-white rounded-[2.5rem] p-8 md:p-16 shadow-sm border border-zinc-200">
+              <div className="max-w-3xl mx-auto">
+                <div className="markdown-body prose prose-zinc max-w-none">
+                  <Markdown rehypePlugins={[rehypeSlug, rehypeRaw]}>{BLOG_CONTENT}</Markdown>
+                </div>
+              </div>
+            </div>
+            
+            {/* Back to Top Button */}
+            <div className="flex justify-center mt-12">
+              <button 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="flex items-center gap-2 px-6 py-3 bg-white border border-zinc-200 rounded-full text-sm font-bold text-zinc-600 hover:bg-zinc-50 hover:text-emerald-600 transition-all shadow-sm"
+              >
+                <ChevronUp size={16} />
+                Back to Top
+              </button>
+            </div>
+          </section>
+
+          {/* Risks Section */}
+          <div id="risks" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <section className="lg:col-span-2 bg-white rounded-3xl p-8 shadow-sm border border-zinc-200">
+              <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                <Info size={18} className="text-emerald-500" />
+                Understanding BMI
+              </h3>
+              <div className="prose prose-zinc max-w-none text-sm leading-relaxed text-zinc-600">
+                <p>
+                  Body Mass Index (BMI) is a measurement of a person's leanness or corpulence based on their height and weight. It is widely used as a general indicator of whether a person has a healthy body weight for their height.
+                </p>
+                <div className="mt-8 overflow-hidden rounded-2xl border border-zinc-100">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-zinc-50">
+                        <th className="px-4 py-3 font-bold text-zinc-900">Classification</th>
+                        <th className="px-4 py-3 font-bold text-zinc-900">BMI Range</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-100">
+                      {BMI_CATEGORIES.map((cat, i) => (
+                        <tr key={i} className="hover:bg-zinc-50/50 transition-colors">
+                          <td className="px-4 py-3">{cat.label}</td>
+                          <td className="px-4 py-3 font-mono">{cat.min === 0 ? '< 16' : cat.max === Infinity ? '> 40' : `${cat.min} - ${cat.max}`}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            <div className="space-y-8">
+              <section className="bg-white rounded-3xl p-8 shadow-sm border border-zinc-200">
+                <h3 className="text-lg font-bold mb-4 text-red-600">Overweight Risks</h3>
+                <ul className="space-y-3 text-sm text-zinc-600">
+                  {[
+                    'High blood pressure',
+                    'Type II diabetes',
+                    'Coronary heart disease',
+                    'Sleep apnea'
+                  ].map((risk, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <AlertCircle size={14} className="mt-1 shrink-0 text-red-400" />
+                      {risk}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section className="bg-white rounded-3xl p-8 shadow-sm border border-zinc-200">
+                <h3 className="text-lg font-bold mb-4 text-blue-600">Underweight Risks</h3>
+                <ul className="space-y-3 text-sm text-zinc-600">
+                  {[
+                    'Malnutrition',
+                    'Osteoporosis',
+                    'Decreased immune function',
+                    'Growth issues'
+                  ].map((risk, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <AlertCircle size={14} className="mt-1 shrink-0 text-blue-400" />
+                      {risk}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-zinc-200 bg-white pt-16 pb-8 mt-24">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            {/* Brand Column */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white">
+                  <Calculator size={18} />
+                </div>
+                <span className="text-lg font-bold tracking-tight">Accurate BMI Calculator</span>
+              </div>
+              <p className="text-sm text-zinc-500 leading-relaxed">
+                Empowering individuals with professional-grade health metrics and evidence-based guidance. Our mission is to provide the most accurate tools for your wellness journey.
+              </p>
+              <div className="flex items-center gap-4">
+                <a href="mailto:support@probmi.com" className="p-2 bg-zinc-50 rounded-full text-zinc-400 hover:text-emerald-500 transition-colors">
+                  <Mail size={18} />
+                </a>
+                <a href="#" className="p-2 bg-zinc-50 rounded-full text-zinc-400 hover:text-emerald-500 transition-colors">
+                  <Heart size={18} />
+                </a>
+              </div>
+            </div>
+
+            {/* Calculators Column */}
+            <div>
+              <h4 className="text-sm font-bold uppercase tracking-widest text-zinc-900 mb-6">BMI Tools</h4>
+              <ul className="space-y-4">
+                {[
+                  { label: 'Standard BMI', href: '#' },
+                  { label: 'BMI Prime', href: '#' },
+                  { label: 'Ponderal Index', href: '#' },
+                  { label: 'Child BMI', href: '#' },
+                  { label: 'Athlete BMI', href: '#' }
+                ].map((item) => (
+                  <li key={item.label}>
+                    <a href={item.href} className="text-sm text-zinc-500 hover:text-emerald-600 transition-colors flex items-center gap-2">
+                      <ArrowRight size={12} className="text-zinc-300" />
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Resources Column */}
+            <div>
+              <h4 className="text-sm font-bold uppercase tracking-widest text-zinc-900 mb-6">Resources</h4>
+              <ul className="space-y-4">
+                {[
+                  { label: 'Ultimate BMI Guide', href: '#guide' },
+                  { label: 'Health Risks', href: '#risks' },
+                  { label: 'Nutrition Basics', href: '#' },
+                  { label: 'Fitness Strategies', href: '#' },
+                  { label: 'Scientific References', href: '#' }
+                ].map((item) => (
+                  <li key={item.label}>
+                    <a href={item.href} className="text-sm text-zinc-500 hover:text-emerald-600 transition-colors flex items-center gap-2">
+                      <ArrowRight size={12} className="text-zinc-300" />
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Legal Column */}
+            <div>
+              <h4 className="text-sm font-bold uppercase tracking-widest text-zinc-900 mb-6">Legal & Trust</h4>
+              <ul className="space-y-4">
+                {[
+                  { label: 'Privacy Policy', icon: ShieldCheck, id: 'privacy' },
+                  { label: 'Terms of Service', icon: ExternalLink, id: 'terms' },
+                  { label: 'Cookie Policy', icon: ShieldCheck, id: 'cookies' },
+                  { label: 'Medical Disclaimer', icon: AlertCircle, id: 'disclaimer' }
+                ].map((item) => (
+                  <li key={item.label}>
+                    <button 
+                      onClick={() => setActiveLegalPage(item.id as any)}
+                      className="text-sm text-zinc-500 hover:text-emerald-600 transition-colors flex items-center gap-2 text-left w-full"
+                    >
+                      <item.icon size={14} className="text-zinc-300" />
+                      {item.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Medical Disclaimer Section */}
+          <div className="border-t border-zinc-100 pt-12 pb-8">
+            <div className="bg-zinc-50 rounded-2xl p-6 md:p-8 border border-zinc-100">
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                <div className="p-3 bg-white rounded-xl shadow-sm border border-zinc-100 shrink-0">
+                  <AlertCircle className="text-amber-500" size={24} />
+                </div>
+                <div className="space-y-2">
+                  <h5 className="text-sm font-bold text-zinc-900">Medical Disclaimer</h5>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    The information provided by Accurate BMI Calculator is for educational and informational purposes only and is not intended as medical advice. 
+                    Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition. 
+                    Never disregard professional medical advice or delay in seeking it because of something you have read on this website. 
+                    Calculations are based on standard formulas and should be used as a general guide only.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-8 border-t border-zinc-100">
+            <p className="text-xs text-zinc-400">
+              &copy; {new Date().getFullYear()} Accurate BMI Calculator. All rights reserved. Built for health awareness.
+            </p>
+            <div className="flex items-center gap-6">
+              <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-2">
+                <ShieldCheck size={12} /> SSL Secured
+              </span>
+              <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-2">
+                <Heart size={12} /> Made with Care
+              </span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
