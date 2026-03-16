@@ -23,7 +23,7 @@ import { twMerge } from 'tailwind-merge';
 import Markdown from 'react-markdown';
 import rehypeSlug from 'rehype-slug';
 import rehypeRaw from 'rehype-raw';
-import { BLOG_CONTENT } from './BlogContent';
+import { BLOG_POSTS, type BlogPost } from './BlogContent';
 import { LEGAL_CONTENT } from './LegalContent';
 
 // Utility for tailwind classes
@@ -130,6 +130,7 @@ export default function App() {
   const [result, setResult] = useState<BmiResult | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [activeLegalPage, setActiveLegalPage] = useState<keyof typeof LEGAL_CONTENT | null>(null);
+  const [activeBlogPost, setActiveBlogPost] = useState<BlogPost>(BLOG_POSTS[0]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -254,7 +255,7 @@ export default function App() {
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <a href="#" className="text-sm font-medium text-zinc-600 hover:text-emerald-600 transition-colors">Calculator</a>
-            <a href="#guide" className="text-sm font-medium text-zinc-600 hover:text-emerald-600 transition-colors">Ultimate Guide</a>
+            <a href="#blog" className="text-sm font-medium text-zinc-600 hover:text-emerald-600 transition-colors">Health Blog</a>
             <a href="#risks" className="text-sm font-medium text-zinc-600 hover:text-emerald-600 transition-colors">Health Risks</a>
           </nav>
           <div className="flex items-center gap-4">
@@ -458,13 +459,62 @@ export default function App() {
             )}
           </AnimatePresence>
 
-          {/* The Ultimate Guide Section */}
-          <section id="guide" className="pt-8 relative">
-            <div className="bg-white rounded-[2.5rem] p-8 md:p-16 shadow-sm border border-zinc-200">
-              <div className="max-w-3xl mx-auto">
-                <div className="markdown-body prose prose-zinc max-w-none">
-                  <Markdown rehypePlugins={[rehypeSlug, rehypeRaw]}>{BLOG_CONTENT}</Markdown>
+          {/* Health Blog Section */}
+          <section id="blog" className="pt-8 space-y-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-black tracking-tight text-zinc-900">Health & Wellness Blog</h2>
+                <p className="text-zinc-500 max-w-2xl">Expert-written, evidence-based guides to help you understand your body and optimize your health journey.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              {/* Blog Navigation Sidebar */}
+              <div className="lg:col-span-1 space-y-4">
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-zinc-200 sticky top-24">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4">Articles</h3>
+                  <div className="space-y-2">
+                    {BLOG_POSTS.map((post) => (
+                      <button
+                        key={post.id}
+                        onClick={() => {
+                          setActiveBlogPost(post);
+                          document.getElementById('blog-content')?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className={cn(
+                          "w-full text-left p-4 rounded-2xl text-sm font-bold transition-all group relative overflow-hidden",
+                          activeBlogPost.id === post.id 
+                            ? "bg-emerald-50 text-emerald-700" 
+                            : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
+                        )}
+                      >
+                        {activeBlogPost.id === post.id && (
+                          <motion.div 
+                            layoutId="active-post"
+                            className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"
+                          />
+                        )}
+                        <span className="relative z-10">{post.title}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
+              </div>
+
+              {/* Blog Content Area */}
+              <div className="lg:col-span-3" id="blog-content">
+                <motion.div 
+                  key={activeBlogPost.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-[2.5rem] p-8 md:p-16 shadow-sm border border-zinc-200"
+                >
+                  <div className="max-w-3xl mx-auto">
+                    <div className="markdown-body prose prose-zinc max-w-none prose-headings:tracking-tight prose-h1:text-4xl prose-h1:font-black prose-h2:text-2xl prose-h2:font-bold prose-p:text-zinc-600 prose-p:leading-relaxed prose-li:text-zinc-600 prose-table:text-sm">
+                      <Markdown rehypePlugins={[rehypeSlug, rehypeRaw]}>{activeBlogPost.content}</Markdown>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
             </div>
             
@@ -602,7 +652,7 @@ export default function App() {
               <h4 className="text-sm font-bold uppercase tracking-widest text-zinc-900 mb-6">Resources</h4>
               <ul className="space-y-4">
                 {[
-                  { label: 'Ultimate BMI Guide', href: '#guide' },
+                  { label: 'Health Blog', href: '#blog' },
                   { label: 'Health Risks', href: '#risks' },
                   { label: 'Nutrition Basics', href: '#' },
                   { label: 'Fitness Strategies', href: '#' },

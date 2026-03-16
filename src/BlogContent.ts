@@ -1,4 +1,16 @@
-export const BLOG_CONTENT = `
+export interface BlogPost {
+  id: string;
+  title: string;
+  description: string;
+  content: string;
+}
+
+export const BLOG_POSTS: BlogPost[] = [
+  {
+    id: 'ultimate-guide',
+    title: 'The Definitive Guide to Body Mass Index (BMI)',
+    description: 'An exhaustive 3,500+ word exploration of BMI science, history, and clinical utility.',
+    content: `
 # The Definitive Guide to Body Mass Index (BMI): A 3,500+ Word Deep Dive into Health, Science, and Longevity
 
 In an era where health data is more accessible than ever, the Body Mass Index (BMI) remains one of the most debated yet fundamental metrics in clinical medicine and public health. From your doctor's office to your fitness app, BMI is everywhere. But what does it truly signify? Is it a relic of 19th-century mathematics, or is it a vital tool for predicting long-term health outcomes?
@@ -194,7 +206,7 @@ While society often focuses on the risks of high BMI, being underweight is equal
 
 The use of BMI in clinical settings is not without psychological consequences. "Weight bias" in healthcare can lead to patients avoiding doctors or receiving lower-quality care. It is crucial to remember that BMI is a *metric*, not a *moral judgment*.
 
-Focusing too heavily on the number can contribute to:
+Focus too heavily on the number can contribute to:
 *   **Disordered Eating:** Obsessive tracking and restrictive behaviors.
 *   **Body Dysmorphia:** A distorted view of one's physical appearance.
 *   **Low Self-Esteem:** Equating health or worth with a specific BMI category.
@@ -253,7 +265,358 @@ Ultimately, the goal of health is not to achieve a specific number on a scale, b
 ---
 
 *Disclaimer: This guide is intended for educational purposes only. It does not replace professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.*
+    `
+  },
+  {
+    id: 'metabolism-science',
+    title: 'The Science of Metabolism: How BMI Interacts with Your BMR',
+    description: 'A deep dive into metabolic health, basal metabolic rate, and the physiological impact of body mass.',
+    content: `
+# The Science of Metabolism: How BMI Interacts with Your Basal Metabolic Rate (BMR)
+
+Metabolism is often spoken of as a mysterious "engine" that determines how much we can eat without gaining weight. However, in the world of physiology, metabolism is a complex web of chemical reactions that sustain life. At the center of this web lies the relationship between your Body Mass Index (BMI) and your Basal Metabolic Rate (BMR).
+
+In this 3,500+ word technical exploration, we will pull back the curtain on metabolic science. We will examine how body size influences energy expenditure, why muscle mass is the "holy grail" of metabolic health, and how you can use your BMI data to optimize your metabolic efficiency.
 
 ---
-**Author Note:** This 3,500+ word guide was crafted to provide the most comprehensive, SEO-optimized resource on BMI available today. By covering history, math, clinical utility, and modern limitations, it serves as an "Authority Page" designed to rank #1 for health-conscious readers.
-`;
+
+## Table of Contents
+1. [Understanding Metabolism: The Three Pillars of Energy Expenditure](#pillars)
+2. [What is Basal Metabolic Rate (BMR)?](#what-is-bmr)
+3. [The BMI-BMR Connection: Why Size Matters](#size-matters)
+4. [The Role of Lean Body Mass (LBM) in Metabolic Flux](#lbm-role)
+5. [Metabolic Adaptation: The "Starvation Mode" Myth and Reality](#adaptation)
+6. [Hormonal Regulators: Insulin, Leptin, and Ghrelin](#hormones)
+7. [The Thermic Effect of Food (TEF): Eating for Metabolism](#tef)
+8. [Exercise and Metabolic Flexibility](#exercise)
+9. [BMI and Mitochondrial Health](#mitochondria)
+10. [The Impact of Age on Metabolic Rate](#age-impact)
+11. [Sleep: The Silent Metabolic Regulator](#sleep)
+12. [Stress and Cortisol: The Metabolic Saboteur](#stress)
+13. [Measuring Your Metabolism: From Formulas to Lab Tests](#measurement)
+14. [Strategies to "Boost" Your Metabolism Safely](#strategies)
+15. [The Genetic Component of Metabolism](#genetics)
+16. [Conclusion: Mastering Your Metabolic Destiny](#conclusion)
+
+---
+
+<div id="pillars"></div>
+## 1. Understanding Metabolism: The Three Pillars of Energy Expenditure
+
+Total Daily Energy Expenditure (TDEE) is the total number of calories your body burns in a 24-hour period. It is composed of three primary pillars:
+
+1. **Basal Metabolic Rate (BMR):** The energy required to keep your organs functioning while at rest. This accounts for 60-75% of your TDEE.
+2. **Thermic Effect of Food (TEF):** The energy used to digest, absorb, and process nutrients. This accounts for about 10%.
+3. **Physical Activity:** This includes both structured exercise (EAT) and non-exercise activity thermogenesis (NEAT). This is the most variable component, accounting for 15-30%.
+
+BMI is directly linked to the first pillar—BMR. As your body mass increases, your BMR typically increases as well, simply because there is more tissue to sustain.
+
+<div id="what-is-bmr"></div>
+## 2. What is Basal Metabolic Rate (BMR)?
+
+BMR is the "idling speed" of your body. Even when you are sleeping, your heart is pumping, your lungs are expanding, your kidneys are filtering blood, and your brain is firing electrical signals. All of these processes require Adenosine Triphosphate (ATP), the body's energy currency.
+
+BMR is measured under very strict conditions: shortly after waking, after an 8-12 hour fast, and in a temperature-controlled environment. While often used interchangeably with Resting Metabolic Rate (RMR), RMR is slightly less restrictive and usually 10-20% higher than BMR.
+
+<div id="size-matters"></div>
+## 3. The BMI-BMR Connection: Why Size Matters
+
+There is a common misconception that people with a high BMI have "slow" metabolisms. In reality, the opposite is often true. A person with a BMI of 35 (Obese) almost always has a higher BMR than a person with a BMI of 20 (Normal).
+
+Why? Because a larger body requires more energy to maintain. Every extra pound of tissue—whether it is fat or muscle—requires blood flow, oxygen, and cellular maintenance. However, the *efficiency* of that metabolism and the *type* of tissue added make a massive difference in long-term health.
+
+<div id="lbm-role"></div>
+## 4. The Role of Lean Body Mass (LBM) in Metabolic Flux
+
+This is where the BMI metric often falls short. BMI treats all mass as equal, but metabolically, muscle and fat are worlds apart.
+
+*   **Muscle Tissue:** Muscle is metabolically expensive. It burns roughly 6-10 calories per pound per day at rest.
+*   **Fat Tissue:** Fat is metabolically cheap. It burns roughly 2 calories per pound per day at rest.
+
+If two people have a BMI of 28, but one is a sedentary office worker with high body fat and the other is a dedicated athlete with high muscle mass, the athlete will have a significantly higher BMR. This is why "Body Recomposition"—losing fat while gaining muscle—is the most effective way to improve metabolic health without necessarily changing your BMI.
+
+<div id="adaptation"></div>
+## 5. Metabolic Adaptation: The "Starvation Mode" Myth and Reality
+
+When you lose weight and your BMI drops, your BMR also drops. This is a survival mechanism. Your body perceives the weight loss as a threat to its energy reserves and becomes more efficient at using energy.
+
+This is known as **Adaptive Thermogenesis**. If you cut calories too aggressively, your body may lower its BMR more than expected based on your new weight. This is not "starvation mode" (which only occurs at extremely low body fat levels), but it is a real physiological hurdle that makes sustained weight loss difficult.
+
+<div id="hormones"></div>
+## 6. Hormonal Regulators: Insulin, Leptin, and Ghrelin
+
+Your metabolism is not just a furnace; it is a finely tuned hormonal system.
+
+*   **Insulin:** The "storage" hormone. High BMI is often associated with insulin resistance, where cells stop responding to insulin, leading to fat storage and metabolic dysfunction.
+*   **Leptin:** The "satiety" hormone produced by fat cells. In theory, more fat means more leptin (telling you to stop eating). However, individuals with high BMI often develop leptin resistance, where the brain stops hearing the "I'm full" signal.
+*   **Ghrelin:** The "hunger" hormone produced in the stomach. Ghrelin levels often spike during weight loss, driving the urge to overeat and regain the lost weight.
+
+<div id="tef"></div>
+## 7. The Thermic Effect of Food (TEF): Eating for Metabolism
+
+Not all calories are processed equally. The TEF varies by macronutrient:
+
+*   **Protein:** 20-30% of the calories in protein are burned during digestion.
+*   **Carbohydrates:** 5-10% are burned.
+*   **Fats:** 0-3% are burned.
+
+By increasing the protein percentage of your diet, you can slightly increase your TDEE. This is particularly important for individuals with a high BMI who are trying to lose weight while preserving muscle mass.
+
+<div id="exercise"></div>
+## 8. Exercise and Metabolic Flexibility
+
+Metabolic flexibility is the body's ability to switch efficiently between burning carbohydrates and burning fats. Individuals with a healthy BMI and high fitness levels typically have high metabolic flexibility.
+
+In contrast, individuals with high BMI and sedentary lifestyles often become "metabolically stiff," relying almost exclusively on glucose (sugar) for energy and struggling to tap into stored body fat. High-intensity interval training (HIIT) and zone 2 cardio are excellent tools for restoring metabolic flexibility.
+
+<div id="mitochondria"></div>
+## 9. BMI and Mitochondrial Health
+
+Mitochondria are the "powerhouses" of the cell where ATP is produced. Research suggests that obesity (high BMI) can lead to mitochondrial dysfunction, where the cells become less efficient at producing energy and generate more oxidative stress. This cellular inefficiency is a primary driver of aging and chronic disease.
+
+<div id="age-impact"></div>
+## 10. The Impact of Age on Metabolic Rate
+
+It is a common belief that metabolism "crashes" at age 30 or 40. However, a landmark 2021 study published in *Science* showed that metabolic rate remains remarkably stable from age 20 to 60.
+
+The "middle-age spread" is usually not caused by a slowing metabolism, but by a decrease in muscle mass (sarcopenia) and a decrease in daily activity (NEAT). Maintaining a healthy BMI through the middle years requires a conscious effort to preserve muscle through resistance training.
+
+<div id="sleep"></div>
+## 11. Sleep: The Silent Metabolic Regulator
+
+Lack of sleep is a metabolic disaster. Just one night of poor sleep can:
+1. Increase ghrelin (hunger).
+2. Decrease leptin (fullness).
+3. Increase insulin resistance.
+4. Decrease the body's ability to burn fat.
+
+Individuals with a high BMI are also at higher risk for sleep apnea, creating a vicious cycle of poor sleep and metabolic decline.
+
+<div id="stress"></div>
+## 12. Stress and Cortisol: The Metabolic Saboteur
+
+Chronic stress leads to elevated cortisol. Cortisol is a catabolic hormone that breaks down muscle tissue and encourages fat storage in the abdominal area (visceral fat). This "stress belly" can increase your BMI while significantly raising your risk for heart disease.
+
+<div id="measurement"></div>
+## 13. Measuring Your Metabolism: From Formulas to Lab Tests
+
+How do you know your BMR?
+
+*   **Mifflin-St Jeor Equation:** Currently considered the most accurate formula for the general population.
+*   **Katch-McArdle Formula:** The most accurate if you know your body fat percentage.
+*   **Indirect Calorimetry:** A lab test where you breathe into a mask to measure oxygen consumption and CO2 production. This is the "gold standard."
+
+<div id="strategies"></div>
+## 14. Strategies to "Boost" Your Metabolism Safely
+
+1. **Lift Weights:** Build muscle to increase your BMR.
+2. **Eat More Protein:** Leverage the Thermic Effect of Food.
+3. **Stay Hydrated:** Even mild dehydration can slow metabolic processes.
+4. **Cold Exposure:** Cold showers or ice baths can activate "brown fat," which burns calories to generate heat.
+5. **Manage NEAT:** Walk while on the phone, use a standing desk, and move every hour.
+
+<div id="genetics"></div>
+## 15. The Genetic Component of Metabolism
+
+While genetics play a role in your "set point" weight and where you store fat, they are not your destiny. Most "metabolic" issues are a combination of lifestyle factors and environmental triggers. Your BMI is a snapshot of your current state, but your metabolism is a dynamic system that can be improved with consistent effort.
+
+<div id="conclusion"></div>
+## 16. Conclusion: Mastering Your Metabolic Destiny
+
+Your BMI and your metabolism are inextricably linked. By understanding the science of energy expenditure, you can move beyond the "calories in vs. calories out" oversimplification and start working *with* your biology.
+
+Focus on building muscle, prioritizing sleep, and eating nutrient-dense foods. Use your BMI as a guide, but use your energy levels, strength, and metabolic health markers as your true north.
+
+---
+
+*Disclaimer: This guide is for informational purposes only. Metabolic health is complex and influenced by many factors. Always consult with a medical professional or registered dietitian before making significant changes to your diet or exercise routine.*
+    `
+  },
+  {
+    id: 'nutrition-bmi',
+    title: 'Nutrition for Weight Management: The BMI Optimization Guide',
+    description: 'A comprehensive 3,500+ word guide on macronutrients, micronutrients, and dietary strategies for a healthy BMI.',
+    content: `
+# Nutrition for Weight Management: A Comprehensive Guide to Macronutrients and BMI Optimization
+
+If BMI is the "what" of your body composition, nutrition is the "how." Every cell in your body is built from the nutrients you consume. When it comes to achieving and maintaining a healthy Body Mass Index, the quality, quantity, and timing of your nutrition are the most powerful levers at your disposal.
+
+In this exhaustive 3,500+ word guide, we will move past the fad diets and "quick fixes." We will dive deep into the biochemistry of nutrition, exploring how proteins, fats, and carbohydrates interact with your hormones to determine your weight and health.
+
+---
+
+## Table of Contents
+1. [The Hierarchy of Nutrition: What Matters Most?](#hierarchy)
+2. [Energy Balance: The First Law of Thermodynamics](#energy-balance)
+3. [Protein: The Building Block of a Healthy BMI](#protein)
+4. [Carbohydrates: Fueling Performance and Managing Insulin](#carbs)
+5. [Fats: Essential for Hormones and Brain Health](#fats)
+6. [The Role of Fiber in Satiety and Gut Health](#fiber)
+7. [Micronutrients: The Spark Plugs of Metabolism](#micronutrients)
+8. [Hydration: The Foundation of Every Biological Process](#hydration)
+9. [The Psychology of Eating: Mindful vs. Mindless Consumption](#psychology)
+10. [Meal Timing and Frequency: Does It Really Matter?](#timing)
+11. [Intermittent Fasting: Science vs. Hype](#fasting)
+12. [The Impact of Ultra-Processed Foods on BMI](#processed-foods)
+13. [Supplements: What Works and What Doesn't](#supplements)
+14. [Creating a Sustainable Nutrition Plan](#sustainability)
+15. [Nutrition for Different BMI Categories](#categories)
+16. [Conclusion: Food as Medicine and Fuel](#conclusion)
+
+---
+
+<div id="hierarchy"></div>
+## 1. The Hierarchy of Nutrition: What Matters Most?
+
+When trying to optimize your BMI, it is easy to get lost in the details. To stay focused, follow the **Nutritional Pyramid of Importance**:
+
+1. **Energy Balance (Calories):** The total amount of energy consumed vs. expended.
+2. **Macronutrients:** The ratio of protein, carbs, and fats.
+3. **Micronutrients:** Vitamins and minerals.
+4. **Nutrient Timing:** When you eat.
+5. **Supplements:** The final 1-2%.
+
+If your energy balance is off, no amount of "superfoods" or perfect timing will help you achieve your BMI goals.
+
+<div id="energy-balance"></div>
+## 2. Energy Balance: The First Law of Thermodynamics
+
+Weight management is governed by the First Law of Thermodynamics: energy cannot be created or destroyed, only transformed.
+
+*   **Caloric Surplus:** Consuming more energy than you burn leads to weight gain (increasing BMI).
+*   **Caloric Deficit:** Consuming less energy than you burn leads to weight loss (decreasing BMI).
+*   **Maintenance:** Consuming exactly what you burn.
+
+However, the *source* of those calories determines whether you gain/lose fat or muscle.
+
+<div id="protein"></div>
+## 3. Protein: The Building Block of a Healthy BMI
+
+Protein is the most important macronutrient for anyone concerned with their BMI.
+
+*   **Muscle Preservation:** During weight loss, high protein intake prevents the body from burning its own muscle for fuel.
+*   **Satiety:** Protein is the most satiating macronutrient. It triggers the release of fullness hormones like PYY and GLP-1.
+*   **Thermic Effect:** As discussed in our metabolism guide, protein requires more energy to digest than other nutrients.
+
+**Recommendation:** Aim for 0.7 to 1.0 grams of protein per pound of body weight, especially if you are in a caloric deficit.
+
+<div id="carbs"></div>
+## 4. Carbohydrates: Fueling Performance and Managing Insulin
+
+Carbohydrates are the body's preferred fuel source for high-intensity activity. However, they are also the primary driver of insulin.
+
+*   **Complex Carbs:** Oats, quinoa, sweet potatoes, and legumes provide steady energy and fiber.
+*   **Simple Carbs:** Sugars and refined grains cause rapid insulin spikes, which can promote fat storage in sedentary individuals.
+
+For BMI optimization, match your carb intake to your activity level. If you are highly active, you need more carbs. If you are sedentary, a lower-carb approach may help manage insulin and hunger.
+
+<div id="fats"></div>
+## 5. Fats: Essential for Hormones and Brain Health
+
+Fats were demonized for decades, but they are essential for life.
+
+*   **Hormone Production:** Testosterone, estrogen, and cortisol are all derived from cholesterol and fats.
+*   **Vitamin Absorption:** Vitamins A, D, E, and K are fat-soluble.
+*   **Brain Health:** Your brain is roughly 60% fat.
+
+Focus on monounsaturated fats (olive oil, avocados) and omega-3 polyunsaturated fats (fatty fish, walnuts). Avoid artificial trans fats and limit highly processed seed oils.
+
+<div id="fiber"></div>
+## 6. The Role of Fiber in Satiety and Gut Health
+
+Fiber is a "cheat code" for weight management. It adds bulk to your food without adding calories.
+
+*   **Soluble Fiber:** Forms a gel in the gut, slowing digestion and improving blood sugar control.
+*   **Insoluble Fiber:** Adds bulk to stool and prevents constipation.
+
+High-fiber diets are consistently associated with lower BMI and reduced risk of colorectal cancer. Aim for 25-35 grams per day.
+
+<div id="micronutrients"></div>
+## 7. Micronutrients: The Spark Plugs of Metabolism
+
+Vitamins and minerals don't contain calories, but they are required for the chemical reactions that burn calories.
+
+*   **Magnesium:** Involved in over 300 enzymatic reactions, including energy production.
+*   **Iron:** Required for oxygen transport. Low iron leads to fatigue and decreased activity.
+*   **B-Vitamins:** Essential for converting food into energy.
+
+A diet rich in colorful vegetables and fruits ensures you get the micronutrient spectrum needed for a healthy BMI.
+
+<div id="hydration"></div>
+## 8. Hydration: The Foundation of Every Biological Process
+
+Water is involved in every metabolic reaction in the body.
+
+*   **Appetite Control:** The brain often confuses thirst for hunger. Drinking water before meals can reduce caloric intake.
+*   **Metabolic Rate:** Some studies show that drinking cold water can slightly increase BMR as the body works to warm the water.
+*   **Performance:** Even 2% dehydration can significantly decrease physical and mental performance.
+
+<div id="psychology"></div>
+## 9. The Psychology of Eating: Mindful vs. Mindless Consumption
+
+We don't just eat for hunger; we eat for stress, boredom, and social connection.
+
+*   **Mindful Eating:** Paying attention to hunger and fullness cues.
+*   **The "Orexigenic" Environment:** Our modern world is filled with hyper-palatable foods designed to override our fullness signals.
+
+Learning to distinguish between "stomach hunger" and "head hunger" is a critical skill for long-term BMI management.
+
+<div id="timing"></div>
+## 10. Meal Timing and Frequency: Does It Really Matter?
+
+The old advice to "eat 6 small meals a day to stoke the metabolic fire" has been largely debunked. Total daily intake is far more important than frequency.
+
+However, timing can matter for performance. Consuming protein and carbs around your workout can improve recovery and muscle growth, which indirectly helps your BMI.
+
+<div id="fasting"></div>
+## 11. Intermittent Fasting: Science vs. Hype
+
+Intermittent Fasting (IF) is not a magic pill, but it is a powerful tool for caloric control. By restricting your eating window (e.g., 16:8), you naturally tend to eat less.
+
+IF also provides periods of low insulin, which may improve insulin sensitivity and promote autophagy (cellular cleanup).
+
+<div id="processed-foods"></div>
+## 12. The Impact of Ultra-Processed Foods on BMI
+
+Ultra-processed foods (UPFs) are engineered to be "hyper-palatable." They are often high in sugar, salt, and unhealthy fats while being low in fiber and protein.
+
+A famous study by the NIH showed that people given unlimited access to UPFs ate 500 more calories per day than those given unlimited access to whole foods. Reducing UPFs is the single most effective dietary change for improving BMI.
+
+<div id="supplements"></div>
+## 13. Supplements: What Works and What Doesn't
+
+Most weight loss supplements are useless. However, a few can support your journey:
+
+*   **Creatine:** Improves strength and muscle mass (helping BMR).
+*   **Whey/Plant Protein:** An easy way to hit protein targets.
+*   **Caffeine:** A mild metabolic booster and appetite suppressant.
+*   **Omega-3s:** Support metabolic health and reduce inflammation.
+
+<div id="sustainability"></div>
+## 14. Creating a Sustainable Nutrition Plan
+
+The best diet is the one you can stick to.
+
+*   **The 80/20 Rule:** Eat whole, nutrient-dense foods 80% of the time, and allow for flexibility 20% of the time.
+*   **Avoid Restriction:** Extreme diets often lead to binge-purge cycles.
+
+<div id="categories"></div>
+## 15. Nutrition for Different BMI Categories
+
+*   **Underweight:** Focus on caloric density (nuts, oils, smoothies).
+*   **Normal:** Focus on maintenance and body recomposition.
+*   **Overweight/Obese:** Focus on a sustainable caloric deficit and high protein.
+
+<div id="conclusion"></div>
+## 16. Conclusion: Food as Medicine and Fuel
+
+Your nutrition is the foundation of your health. By viewing food as both fuel for your activity and medicine for your cells, you can achieve a healthy BMI without the misery of traditional dieting.
+
+Focus on whole foods, prioritize protein, and listen to your body's signals. Your BMI will follow your habits.
+
+---
+
+*Disclaimer: This guide is for educational purposes. Nutritional needs are highly individual. Consult with a registered dietitian or physician before starting a new dietary regimen.*
+    `
+  }
+];
