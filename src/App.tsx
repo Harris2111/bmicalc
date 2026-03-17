@@ -24,6 +24,14 @@ import Markdown from 'react-markdown';
 import rehypeSlug from 'rehype-slug';
 import rehypeRaw from 'rehype-raw';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { 
+  BrowserRouter, 
+  Routes, 
+  Route, 
+  useNavigate, 
+  useParams,
+  useLocation
+} from 'react-router-dom';
 import { BLOG_POSTS, type BlogPost } from './BlogContent';
 import { LEGAL_CONTENT } from './LegalContent';
 import { HEALTH_PLANS } from './HealthPlans';
@@ -124,7 +132,11 @@ const BMI_CATEGORIES = [
   },
 ];
 
-export default function App() {
+function BmiApp() {
+  const navigate = useNavigate();
+  const { blogId } = useParams();
+  const location = useLocation();
+
   const [unitSystem, setUnitSystem] = useState<UnitSystem>('US');
   const [age, setAge] = useState<number>(25);
   const [gender, setGender] = useState<Gender>('female');
@@ -142,6 +154,22 @@ export default function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [activeLegalPage, setActiveLegalPage] = useState<keyof typeof LEGAL_CONTENT | null>(null);
   const [activeBlogPost, setActiveBlogPost] = useState<BlogPost>(BLOG_POSTS[0]);
+
+  // Sync active blog post with URL
+  useEffect(() => {
+    if (blogId) {
+      const post = BLOG_POSTS.find(p => p.id === blogId);
+      if (post) {
+        setActiveBlogPost(post);
+        // If we just loaded a blog post URL, scroll to it
+        if (location.pathname.startsWith('/blog/')) {
+          setTimeout(() => {
+            document.getElementById('blog-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        }
+      }
+    }
+  }, [blogId, location.pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -195,8 +223,7 @@ export default function App() {
   }, [unitSystem, feet, inches, pounds, cm, kg, age, gender]);
 
   return (
-    <HelmetProvider>
-      <div className="min-h-screen bg-[#F5F5F3] text-[#1A1A1A] font-sans selection:bg-emerald-100 scroll-smooth scroll-pt-20">
+    <div className="min-h-screen bg-[#F5F5F3] text-[#1A1A1A] font-sans selection:bg-emerald-100 scroll-smooth scroll-pt-20">
         <Helmet>
           <title>{activeBlogPost ? `${activeBlogPost.title} | Accurate BMI Calculator` : 'Accurate BMI Calculator | Professional Health Metrics'}</title>
           <meta name="description" content={activeBlogPost ? activeBlogPost.description : 'Calculate your Body Mass Index (BMI) with precision. Get personalized health roadmaps, expert nutrition advice, and evidence-based wellness guides.'} />
@@ -637,10 +664,7 @@ export default function App() {
                   whileHover={{ y: -8, scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
-                    setActiveBlogPost(post);
-                    setTimeout(() => {
-                      document.getElementById('blog-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
+                    navigate(`/blog/${post.id}`);
                   }}
                   className={cn(
                     "bg-white rounded-[2rem] p-6 border transition-all cursor-pointer flex flex-col group relative overflow-hidden",
@@ -1029,6 +1053,18 @@ export default function App() {
         </div>
       </footer>
     </div>
-  </HelmetProvider>
-);
+  );
+}
+
+export default function App() {
+  return (
+    <HelmetProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<BmiApp />} />
+          <Route path="/blog/:blogId" element={<BmiApp />} />
+        </Routes>
+      </BrowserRouter>
+    </HelmetProvider>
+  );
 }
