@@ -23,8 +23,19 @@ import { twMerge } from 'tailwind-merge';
 import Markdown from 'react-markdown';
 import rehypeSlug from 'rehype-slug';
 import rehypeRaw from 'rehype-raw';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { BLOG_POSTS, type BlogPost } from './BlogContent';
 import { LEGAL_CONTENT } from './LegalContent';
+import { HEALTH_PLANS } from './HealthPlans';
+import { 
+  Activity, 
+  Utensils, 
+  Clock, 
+  AlertTriangle, 
+  Stethoscope,
+  Target,
+  ChevronRight
+} from 'lucide-react';
 
 // Utility for tailwind classes
 function cn(...inputs: ClassValue[]) {
@@ -184,7 +195,45 @@ export default function App() {
   }, [unitSystem, feet, inches, pounds, cm, kg, age, gender]);
 
   return (
-    <div className="min-h-screen bg-[#F5F5F3] text-[#1A1A1A] font-sans selection:bg-emerald-100 scroll-smooth scroll-pt-20">
+    <HelmetProvider>
+      <div className="min-h-screen bg-[#F5F5F3] text-[#1A1A1A] font-sans selection:bg-emerald-100 scroll-smooth scroll-pt-20">
+        <Helmet>
+          <title>{activeBlogPost ? `${activeBlogPost.title} | Accurate BMI Calculator` : 'Accurate BMI Calculator | Professional Health Metrics'}</title>
+          <meta name="description" content={activeBlogPost ? activeBlogPost.description : 'Calculate your Body Mass Index (BMI) with precision. Get personalized health roadmaps, expert nutrition advice, and evidence-based wellness guides.'} />
+          
+          {/* JSON-LD Structured Data */}
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "Accurate BMI Calculator",
+              "operatingSystem": "Web",
+              "applicationCategory": "HealthApplication",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              }
+            })}
+          </script>
+          
+          {activeBlogPost && (
+            <script type="application/ld+json">
+              {JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "BlogPosting",
+                "headline": activeBlogPost.title,
+                "description": activeBlogPost.description,
+                "author": {
+                  "@type": "Person",
+                  "name": activeBlogPost.author.name,
+                  "jobTitle": activeBlogPost.author.role
+                },
+                "datePublished": activeBlogPost.date
+              })}
+            </script>
+          )}
+        </Helmet>
       {/* Floating Back to Top */}
       <AnimatePresence>
         {showScrollTop && (
@@ -387,75 +436,189 @@ export default function App() {
           {/* Results Card */}
           <AnimatePresence mode="wait">
             {result && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-zinc-200"
-              >
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-                  <div className="lg:col-span-5 flex flex-col items-center">
-                    <div className="relative w-64 h-64 flex items-center justify-center shrink-0">
-                      <svg className="w-full h-full -rotate-90">
-                        <circle cx="128" cy="128" r="112" fill="none" stroke="#F4F4F5" strokeWidth="20" />
-                        <circle
-                          cx="128"
-                          cy="128"
-                          r="112"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="20"
-                          strokeDasharray={703}
-                          strokeDashoffset={703 - (Math.min(result.bmi, 40) / 40) * 703}
-                          className={cn("transition-all duration-1000 ease-out", result.color.replace('text', 'stroke'))}
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
-                        <span className={cn("text-6xl font-black font-mono tracking-tighter transition-colors duration-500", result.color)}>
-                          {result.bmi}
-                        </span>
-                        <span className={cn("text-sm font-bold uppercase tracking-widest mt-2 transition-colors duration-500", result.color)}>
-                          {result.category}
-                        </span>
-                        <div className="h-px w-12 bg-zinc-100 my-3" />
-                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">BMI Units</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="lg:col-span-7 space-y-10">
-                    <div className="grid grid-cols-2 gap-x-12 gap-y-8">
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Healthy Range</span>
-                        <p className="text-xl font-mono font-bold">{result.healthyRange.min} - {result.healthyRange.max}</p>
-                      </div>
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Healthy Weight</span>
-                        <p className="text-xl font-mono font-bold">{result.healthyWeightRange.min} - {result.healthyWeightRange.max} <span className="text-xs font-normal text-zinc-400 uppercase">{unitSystem === 'US' ? 'lbs' : 'kg'}</span></p>
-                      </div>
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">BMI Prime</span>
-                        <p className="text-xl font-mono font-bold">{result.prime}</p>
-                      </div>
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Ponderal Index</span>
-                        <p className="text-xl font-mono font-bold">{result.ponderalIndex} <span className="text-xs font-normal text-zinc-400 uppercase">kg/m³</span></p>
+              <div className="space-y-8">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-zinc-200"
+                >
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                    <div className="lg:col-span-5 flex flex-col items-center">
+                      <div className="relative w-64 h-64 flex items-center justify-center shrink-0">
+                        <svg className="w-full h-full -rotate-90">
+                          <circle cx="128" cy="128" r="112" fill="none" stroke="#F4F4F5" strokeWidth="20" />
+                          <circle
+                            cx="128"
+                            cy="128"
+                            r="112"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="20"
+                            strokeDasharray={703}
+                            strokeDashoffset={703 - (Math.min(result.bmi, 40) / 40) * 703}
+                            className={cn("transition-all duration-1000 ease-out", result.color.replace('text', 'stroke'))}
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+                          <span className={cn("text-6xl font-black font-mono tracking-tighter transition-colors duration-500", result.color)}>
+                            {result.bmi}
+                          </span>
+                          <span className={cn("text-sm font-bold uppercase tracking-widest mt-2 transition-colors duration-500", result.color)}>
+                            {result.category}
+                          </span>
+                          <div className="h-px w-12 bg-zinc-100 my-3" />
+                          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">BMI Units</span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="bg-zinc-50 rounded-3xl p-8 border border-zinc-100 relative overflow-hidden">
-                      <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", result.color.replace('text', 'bg'))} />
-                      <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
-                        <CheckCircle2 size={16} className={result.color} />
-                        Personalized Suggestion
-                      </h3>
-                      <p className="text-sm text-zinc-600 leading-relaxed">
-                        {result.suggestion}
-                      </p>
+                    <div className="lg:col-span-7 space-y-10">
+                      <div className="grid grid-cols-2 gap-x-12 gap-y-8">
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Healthy Range</span>
+                          <p className="text-xl font-mono font-bold">{result.healthyRange.min} - {result.healthyRange.max}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Healthy Weight</span>
+                          <p className="text-xl font-mono font-bold">{result.healthyWeightRange.min} - {result.healthyWeightRange.max} <span className="text-xs font-normal text-zinc-400 uppercase">{unitSystem === 'US' ? 'lbs' : 'kg'}</span></p>
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">BMI Prime</span>
+                          <p className="text-xl font-mono font-bold">{result.prime}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Ponderal Index</span>
+                          <p className="text-xl font-mono font-bold">{result.ponderalIndex} <span className="text-xs font-normal text-zinc-400 uppercase">kg/m³</span></p>
+                        </div>
+                      </div>
+
+                      <div className="bg-zinc-50 rounded-3xl p-8 border border-zinc-100 relative overflow-hidden">
+                        <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", result.color.replace('text', 'bg'))} />
+                        <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                          <CheckCircle2 size={16} className={result.color} />
+                          Personalized Suggestion
+                        </h3>
+                        <p className="text-sm text-zinc-600 leading-relaxed">
+                          {result.suggestion}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+
+                {/* Personalized Health Roadmap */}
+                {HEALTH_PLANS[result.category] && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="space-y-8"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="h-px flex-1 bg-zinc-200" />
+                      <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-400">Personalized Health Roadmap</h2>
+                      <div className="h-px flex-1 bg-zinc-200" />
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                      {/* Column 1: Risks & Actions */}
+                      <div className="space-y-8">
+                        <div className="bg-white rounded-[2rem] p-8 border border-zinc-200 shadow-sm space-y-6">
+                          <div className="flex items-center gap-3 text-red-600">
+                            <AlertTriangle size={20} />
+                            <h3 className="font-bold tracking-tight">Health Risks</h3>
+                          </div>
+                          <ul className="space-y-4">
+                            {HEALTH_PLANS[result.category].risks.map((risk, i) => (
+                              <li key={i} className="flex gap-3 text-sm text-zinc-600">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-200 mt-1.5 shrink-0" />
+                                {risk}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="bg-white rounded-[2rem] p-8 border border-zinc-200 shadow-sm space-y-6">
+                          <div className="flex items-center gap-3 text-emerald-600">
+                            <Target size={20} />
+                            <h3 className="font-bold tracking-tight">Priority Actions</h3>
+                          </div>
+                          <div className="space-y-4">
+                            {HEALTH_PLANS[result.category].actions.map((action, i) => (
+                              <div key={i} className="space-y-1">
+                                <p className="text-sm font-bold text-zinc-900">{action.title}</p>
+                                <p className="text-xs text-zinc-500 leading-relaxed">{action.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Column 2: Methods & Timeline */}
+                      <div className="space-y-8">
+                        <div className="bg-white rounded-[2rem] p-8 border border-zinc-200 shadow-sm space-y-6">
+                          <div className="flex items-center gap-3 text-indigo-600">
+                            <Activity size={20} />
+                            <h3 className="font-bold tracking-tight">How to Implement</h3>
+                          </div>
+                          <ul className="space-y-4">
+                            {HEALTH_PLANS[result.category].methods.map((method, i) => (
+                              <li key={i} className="flex gap-3 text-sm text-zinc-600">
+                                <ChevronRight size={14} className="mt-1 shrink-0 text-indigo-300" />
+                                {method}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="bg-zinc-900 rounded-[2rem] p-8 text-white space-y-4">
+                          <div className="flex items-center gap-3 text-emerald-400">
+                            <Clock size={20} />
+                            <h3 className="font-bold tracking-tight">Expected Timeline</h3>
+                          </div>
+                          <p className="text-sm text-zinc-400 leading-relaxed">
+                            {HEALTH_PLANS[result.category].timeline}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Column 3: Nutrition & Disclaimer */}
+                      <div className="space-y-8">
+                        <div className="bg-white rounded-[2rem] p-8 border border-zinc-200 shadow-sm space-y-6">
+                          <div className="flex items-center gap-3 text-orange-600">
+                            <Utensils size={20} />
+                            <h3 className="font-bold tracking-tight">Recommended Meals</h3>
+                          </div>
+                          <div className="space-y-6">
+                            {HEALTH_PLANS[result.category].meals.map((meal, i) => (
+                              <div key={i} className="space-y-2">
+                                <p className="text-sm font-bold text-zinc-900">{meal.name}</p>
+                                <div className="p-3 bg-orange-50 rounded-xl border border-orange-100">
+                                  <p className="text-[11px] text-orange-800 leading-relaxed">
+                                    <span className="font-bold uppercase text-[9px] block mb-1">Why this meal?</span>
+                                    {meal.why}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="bg-amber-50 rounded-[2rem] p-8 border border-amber-100 space-y-4">
+                          <div className="flex items-center gap-3 text-amber-700">
+                            <Stethoscope size={20} />
+                            <h3 className="font-bold tracking-tight">Medical Notice</h3>
+                          </div>
+                          <p className="text-xs text-amber-800/80 leading-relaxed italic">
+                            These suggestions are evidence-based recommendations for educational purposes only. They are not a substitute for professional medical advice, diagnosis, or treatment. Always consult with a physician or qualified healthcare provider before making significant changes to your diet or exercise routine.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             )}
           </AnimatePresence>
 
@@ -474,7 +637,7 @@ export default function App() {
                 <div className="bg-white rounded-3xl p-6 shadow-sm border border-zinc-200 sticky top-24">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4">Articles</h3>
                   <div className="space-y-2">
-                    {BLOG_POSTS.map((post) => (
+                    {BLOG_POSTS.map((post, index) => (
                       <button
                         key={post.id}
                         onClick={() => {
@@ -482,19 +645,25 @@ export default function App() {
                           document.getElementById('blog-content')?.scrollIntoView({ behavior: 'smooth' });
                         }}
                         className={cn(
-                          "w-full text-left p-4 rounded-2xl text-sm font-bold transition-all group relative overflow-hidden",
+                          "w-full text-left p-4 rounded-2xl text-sm font-bold transition-all group relative overflow-hidden flex items-center gap-3",
                           activeBlogPost.id === post.id 
-                            ? "bg-emerald-50 text-emerald-700" 
+                            ? "bg-emerald-50 text-emerald-700 shadow-sm" 
                             : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
                         )}
                       >
+                        <div className={cn(
+                          "w-8 h-8 rounded-lg flex items-center justify-center text-xs shrink-0 transition-colors",
+                          activeBlogPost.id === post.id ? "bg-emerald-500 text-white" : "bg-zinc-100 text-zinc-400 group-hover:bg-zinc-200"
+                        )}>
+                          {index + 1}
+                        </div>
                         {activeBlogPost.id === post.id && (
                           <motion.div 
                             layoutId="active-post"
                             className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"
                           />
                         )}
-                        <span className="relative z-10">{post.title}</span>
+                        <span className="relative z-10 leading-tight">{post.title}</span>
                       </button>
                     ))}
                   </div>
@@ -509,9 +678,59 @@ export default function App() {
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-white rounded-[2.5rem] p-8 md:p-16 shadow-sm border border-zinc-200"
                 >
-                  <div className="max-w-3xl mx-auto">
-                    <div className="markdown-body prose prose-zinc max-w-none prose-headings:tracking-tight prose-h1:text-4xl prose-h1:font-black prose-h2:text-2xl prose-h2:font-bold prose-p:text-zinc-600 prose-p:leading-relaxed prose-li:text-zinc-600 prose-table:text-sm">
+                  <div className="max-w-3xl mx-auto space-y-12">
+                    <div className="markdown-body prose prose-zinc max-w-none prose-headings:tracking-tight prose-h1:text-4xl prose-h1:font-black prose-h1:text-zinc-900 prose-h2:text-2xl prose-h2:font-bold prose-h2:text-emerald-600 prose-h2:mt-12 prose-h2:mb-6 prose-p:text-zinc-600 prose-p:leading-relaxed prose-li:text-zinc-600 prose-table:text-sm prose-strong:text-zinc-900 prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline">
                       <Markdown rehypePlugins={[rehypeSlug, rehypeRaw]}>{activeBlogPost.content}</Markdown>
+                    </div>
+
+                    {/* Author Bio Section */}
+                    <div className="mt-16 p-8 bg-zinc-50 rounded-3xl border border-zinc-100 flex flex-col md:flex-row gap-8 items-center md:items-start">
+                      <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                        <User size={40} />
+                      </div>
+                      <div className="space-y-4 text-center md:text-left">
+                        <div className="space-y-1">
+                          <h4 className="text-xl font-bold text-zinc-900">{activeBlogPost.author.name}</h4>
+                          <p className="text-sm font-bold text-emerald-600 uppercase tracking-widest">{activeBlogPost.author.role}</p>
+                        </div>
+                        <p className="text-sm text-zinc-500 leading-relaxed italic">
+                          "{activeBlogPost.author.bio}"
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Citations Section */}
+                    <div className="mt-8 space-y-4">
+                      <h5 className="text-xs font-bold uppercase tracking-widest text-zinc-400">Scientific References</h5>
+                      <ul className="space-y-2">
+                        {activeBlogPost.citations.map((cite, i) => (
+                          <li key={i}>
+                            <a 
+                              href={cite.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-xs text-zinc-500 hover:text-emerald-600 flex items-center gap-2 transition-colors"
+                            >
+                              <ExternalLink size={12} className="text-zinc-300" />
+                              {cite.text}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Bottom Call to Action */}
+                    <div className="mt-16 p-8 bg-zinc-900 rounded-3xl text-white flex flex-col md:flex-row items-center justify-between gap-8">
+                      <div className="space-y-2">
+                        <h4 className="text-xl font-bold">Ready to track your health?</h4>
+                        <p className="text-zinc-400 text-sm">Use our accurate calculator to get your BMI results in seconds.</p>
+                      </div>
+                      <button 
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="px-8 py-3 bg-emerald-500 text-white rounded-xl font-bold hover:bg-emerald-600 transition-colors shrink-0"
+                      >
+                        Back to Calculator
+                      </button>
                     </div>
                   </div>
                 </motion.div>
@@ -598,6 +817,67 @@ export default function App() {
               </section>
             </div>
           </div>
+
+          {/* FAQ Section */}
+          <section className="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-sm border border-zinc-200">
+            <div className="max-w-3xl mx-auto space-y-12">
+              <div className="text-center space-y-4">
+                <h2 className="text-3xl font-black tracking-tight text-zinc-900">Frequently Asked Questions</h2>
+                <p className="text-zinc-500">Common questions about BMI, health metrics, and weight management.</p>
+              </div>
+              
+              <div className="space-y-6">
+                {[
+                  {
+                    q: "Is BMI accurate for everyone?",
+                    a: "BMI is a reliable screening tool for most adults. However, it may not be accurate for athletes with high muscle mass, pregnant women, or the elderly. It should be used alongside other metrics like waist circumference."
+                  },
+                  {
+                    q: "What is a healthy BMI range?",
+                    a: "For most adults, a healthy BMI range is between 18.5 and 24.9. Ranges below 18.5 are considered underweight, while ranges above 25 are considered overweight or obese."
+                  },
+                  {
+                    q: "How often should I check my BMI?",
+                    a: "Checking your BMI once every few months is usually sufficient to track long-term trends. Focus on consistent lifestyle habits rather than daily fluctuations."
+                  }
+                ].map((faq, i) => (
+                  <div key={i} className="p-6 bg-zinc-50 rounded-2xl border border-zinc-100 space-y-3">
+                    <h4 className="font-bold text-zinc-900 flex items-center gap-3">
+                      <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">Q</div>
+                      {faq.q}
+                    </h4>
+                    <p className="text-sm text-zinc-600 leading-relaxed pl-9">{faq.a}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* FAQ Schema */}
+              <script type="application/ld+json">
+                {JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "FAQPage",
+                  "mainEntity": [
+                    {
+                      "@type": "Question",
+                      "name": "Is BMI accurate for everyone?",
+                      "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "BMI is a reliable screening tool for most adults. However, it may not be accurate for athletes with high muscle mass, pregnant women, or the elderly."
+                      }
+                    },
+                    {
+                      "@type": "Question",
+                      "name": "What is a healthy BMI range?",
+                      "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "For most adults, a healthy BMI range is between 18.5 and 24.9."
+                      }
+                    }
+                  ]
+                })}
+              </script>
+            </div>
+          </section>
         </div>
       </main>
 
@@ -729,5 +1009,6 @@ export default function App() {
         </div>
       </footer>
     </div>
-  );
+  </HelmetProvider>
+);
 }
