@@ -295,7 +295,7 @@ export default function App() {
 
       {/* Header */}
       <header className="border-b border-zinc-200 bg-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white">
               <Calculator size={18} />
@@ -318,7 +318,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8 md:py-12">
+      <main className="max-w-7xl mx-auto px-4 py-8 md:py-12">
         <div className="space-y-16">
           {/* Calculator Section */}
           <div className="space-y-8">
@@ -623,60 +623,80 @@ export default function App() {
           </AnimatePresence>
 
           {/* Health Blog Section */}
-          <section id="blog" className="pt-8 space-y-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-black tracking-tight text-zinc-900">Health & Wellness Blog</h2>
-                <p className="text-zinc-500 max-w-2xl">Expert-written, evidence-based guides to help you understand your body and optimize your health journey.</p>
-              </div>
+          <section id="blog" className="pt-8 space-y-12">
+            <div className="space-y-4 text-center">
+              <h2 className="text-4xl font-black tracking-tight text-zinc-900">Health & Wellness Library</h2>
+              <p className="text-zinc-500 max-w-2xl mx-auto">Expert-written, evidence-based guides to help you understand your body and optimize your health journey.</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-              {/* Blog Navigation Sidebar */}
-              <div className="lg:col-span-1 space-y-4">
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-zinc-200 sticky top-24">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-4">Articles</h3>
-                  <div className="space-y-2">
-                    {BLOG_POSTS.map((post, index) => (
-                      <button
-                        key={post.id}
-                        onClick={() => {
-                          setActiveBlogPost(post);
-                          document.getElementById('blog-content')?.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                        className={cn(
-                          "w-full text-left p-4 rounded-2xl text-sm font-bold transition-all group relative overflow-hidden flex items-center gap-3",
-                          activeBlogPost.id === post.id 
-                            ? "bg-emerald-50 text-emerald-700 shadow-sm" 
-                            : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
-                        )}
-                      >
-                        <div className={cn(
-                          "w-8 h-8 rounded-lg flex items-center justify-center text-xs shrink-0 transition-colors",
-                          activeBlogPost.id === post.id ? "bg-emerald-500 text-white" : "bg-zinc-100 text-zinc-400 group-hover:bg-zinc-200"
-                        )}>
-                          {index + 1}
-                        </div>
-                        {activeBlogPost.id === post.id && (
-                          <motion.div 
-                            layoutId="active-post"
-                            className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"
-                          />
-                        )}
-                        <span className="relative z-10 leading-tight">{post.title}</span>
-                      </button>
-                    ))}
+            {/* Grid of Blog Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
+              {BLOG_POSTS.map((post) => (
+                <motion.div
+                  key={post.id}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setActiveBlogPost(post);
+                    setTimeout(() => {
+                      document.getElementById('blog-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                  }}
+                  className={cn(
+                    "bg-white rounded-[2rem] p-6 border transition-all cursor-pointer flex flex-col group relative overflow-hidden",
+                    activeBlogPost.id === post.id 
+                      ? "border-emerald-500 ring-4 ring-emerald-500/5 shadow-xl shadow-emerald-500/10" 
+                      : "border-zinc-200 shadow-sm hover:shadow-2xl hover:border-emerald-200"
+                  )}
+                >
+                  {activeBlogPost.id === post.id && (
+                    <div className="absolute top-0 right-0 p-4">
+                      <div className="bg-emerald-500 text-white p-1 rounded-full">
+                        <CheckCircle2 size={16} />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full">
+                      {post.readTime}
+                    </span>
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                      {post.date}
+                    </span>
                   </div>
-                </div>
-              </div>
 
-              {/* Blog Content Area */}
-              <div className="lg:col-span-3" id="blog-content">
+                  <h3 className="text-xl font-bold text-zinc-900 mb-4 group-hover:text-emerald-600 transition-colors leading-tight">
+                    {post.title}
+                  </h3>
+                  
+                  <p className="text-sm text-zinc-500 leading-relaxed mb-8 flex-1 line-clamp-3">
+                    {post.description}
+                  </p>
+
+                  <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center gap-2 text-emerald-600 font-bold text-sm">
+                      Read Article 
+                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+                      <ChevronRight size={16} />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Blog Content Area */}
+            <div className="pt-16" id="blog-content">
+              <AnimatePresence mode="wait">
                 <motion.div 
                   key={activeBlogPost.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 40 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-[2.5rem] p-8 md:p-16 shadow-sm border border-zinc-200"
+                  exit={{ opacity: 0, y: -40 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="bg-white rounded-[3rem] p-8 md:p-20 shadow-sm border border-zinc-200"
                 >
                   <div className="max-w-3xl mx-auto space-y-12">
                     <div className="markdown-body prose prose-zinc max-w-none prose-headings:tracking-tight prose-h1:text-4xl prose-h1:font-black prose-h1:text-zinc-900 prose-h2:text-2xl prose-h2:font-bold prose-h2:text-emerald-600 prose-h2:mt-12 prose-h2:mb-6 prose-p:text-zinc-600 prose-p:leading-relaxed prose-li:text-zinc-600 prose-table:text-sm prose-strong:text-zinc-900 prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline">
@@ -734,8 +754,9 @@ export default function App() {
                     </div>
                   </div>
                 </motion.div>
-              </div>
+              </AnimatePresence>
             </div>
+          </section>
             
             {/* Back to Top Button */}
             <div className="flex justify-center mt-12">
@@ -747,7 +768,6 @@ export default function App() {
                 Back to Top
               </button>
             </div>
-          </section>
 
           {/* Risks Section */}
           <div id="risks" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -883,7 +903,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="border-t border-zinc-200 bg-white pt-16 pb-8 mt-24">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             {/* Brand Column */}
             <div className="space-y-6">
